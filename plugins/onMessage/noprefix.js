@@ -1,29 +1,24 @@
 const pr = global.config.PREFIX
 const regex = new RegExp(`^${pr}`)
-const config = {
-  name: "",
-  description: "",
-  version: "",
-  credits: ""
-}
-const noPrefix = ["ai", "gpt4"]
+const noPrefix = ["spotify", "gpt4"] //names that does not need a prefix
 
 
-async function onCall({message, args,getLang}) {
+async function onCall(methods) {
   const {commands} = global.plugins;
-  const called = message.args[0]?.replace(regex, "").toLowerCase();
+  methods.args = methods.message.args.slice(1)
+  const called = methods.message.args[0]?.replace(regex, "").toLowerCase();
   if(noPrefix.includes(called)) {
-    const cmd = called;
     
-    for(let [key,value] of commands.entries()) {
-      if(key == cmd) {
-        return await value({args: args, message, getLang})
+    commands.forEach((cmd,name) => {
+      if(called?.toLowerCase() == name) {
+        return cmd(methods)
       }
-    }
+    })
+    
+    
   }
 }
 
 export default {
-  config,
   onCall
 }
